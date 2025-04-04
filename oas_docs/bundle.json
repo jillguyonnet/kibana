@@ -29983,6 +29983,9 @@
                               "sync_integrations": {
                                 "type": "boolean"
                               },
+                              "sync_uninstalled_integrations": {
+                                "type": "boolean"
+                              },
                               "type": {
                                 "enum": [
                                   "remote_elasticsearch"
@@ -31164,6 +31167,9 @@
                       "sync_integrations": {
                         "type": "boolean"
                       },
+                      "sync_uninstalled_integrations": {
+                        "type": "boolean"
+                      },
                       "type": {
                         "enum": [
                           "remote_elasticsearch"
@@ -32276,6 +32282,9 @@
                               "type": "object"
                             },
                             "sync_integrations": {
+                              "type": "boolean"
+                            },
+                            "sync_uninstalled_integrations": {
                               "type": "boolean"
                             },
                             "type": {
@@ -33557,6 +33566,9 @@
                             "sync_integrations": {
                               "type": "boolean"
                             },
+                            "sync_uninstalled_integrations": {
+                              "type": "boolean"
+                            },
                             "type": {
                               "enum": [
                                 "remote_elasticsearch"
@@ -34723,6 +34735,9 @@
                       "sync_integrations": {
                         "type": "boolean"
                       },
+                      "sync_uninstalled_integrations": {
+                        "type": "boolean"
+                      },
                       "type": {
                         "enum": [
                           "remote_elasticsearch"
@@ -35820,6 +35835,9 @@
                               "type": "object"
                             },
                             "sync_integrations": {
+                              "type": "boolean"
+                            },
+                            "sync_uninstalled_integrations": {
                               "type": "boolean"
                             },
                             "type": {
