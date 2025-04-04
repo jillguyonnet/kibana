@@ -164,6 +164,7 @@ export const RemoteElasticSearchSchema = {
   sync_integrations: schema.maybe(schema.boolean()),
   kibana_url: schema.maybe(schema.oneOf([schema.literal(null), schema.string()])),
   kibana_api_key: schema.maybe(schema.oneOf([schema.literal(null), schema.string()])),
+  sync_uninstalled_integrations: schema.maybe(schema.boolean()),
 };
 
 const RemoteElasticSearchUpdateSchema = {
@@ -180,6 +181,7 @@ const RemoteElasticSearchUpdateSchema = {
   sync_integrations: schema.maybe(schema.boolean()),
   kibana_url: schema.maybe(schema.oneOf([schema.literal(null), schema.string()])),
   kibana_api_key: schema.maybe(schema.oneOf([schema.literal(null), schema.string()])),
+  sync_uninstalled_integrations: schema.maybe(schema.boolean()),
 };
 
 /**

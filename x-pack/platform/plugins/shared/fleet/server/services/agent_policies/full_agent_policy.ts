@@ -619,6 +619,7 @@ export function transformOutputToFullPolicyOutput(
     newOutput.kibana_api_key = output.kibana_api_key;
     newOutput.kibana_url = output.kibana_url;
     newOutput.sync_integrations = output.sync_integrations;
+    newOutput.sync_uninstalled_integrations = output.sync_uninstalled_integrations;
   }
 
   if (outputTypeSupportPresets(output.type)) {

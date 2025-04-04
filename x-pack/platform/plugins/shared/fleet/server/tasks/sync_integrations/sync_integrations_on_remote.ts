@@ -7,12 +7,15 @@
 
 import type { ElasticsearchClient, SavedObjectsClient, Logger } from '@kbn/core/server';
 
+import semverEq from 'semver/functions/eq';
 import semverGte from 'semver/functions/gte';
 
 import type { PackageClient } from '../../services';
 import { outputService } from '../../services';
 
 import { PackageNotFoundError } from '../../errors';
+
+import { getInstallation, removeInstallation } from '../../services/epm/packages';
 
 import type { SyncIntegrationsData } from './model';
 import { installCustomAsset } from './custom_assets';
@@ -144,6 +147,44 @@ async function installPackageIfNotInstalled(
   }
 }
 
+async function uninstallPackageIfInstalled(
+  esClient: ElasticsearchClient,
+  savedObjectsClient: SavedObjectsClient,
+  pkg: { package_name: string; package_version: string },
+  logger: Logger
+) {
+  const installation = await getInstallation({ savedObjectsClient, pkgName: pkg.package_name });
+  if (!installation) {
+    return;
+  }
+  if (
+    !(
+      installation.install_status === 'installed' &&
+      semverEq(installation.version, pkg.package_version)
+    )
+  ) {
+    return;
+  }
+
+  try {
+    await removeInstallation({
+      savedObjectsClient,
+      pkgName: pkg.package_name,
+      pkgVersion: pkg.package_version,
+      esClient,
+      force: false,
+    });
+    logger.info(
+      `Package ${pkg.package_name} with version ${pkg.package_version} uninstalled via integration syncing`
+    );
+  } catch (error) {
+    logger.error(
+      `Failed to uninstall package ${pkg.package_name} with version ${pkg.package_version}: ${error.message}`
+    );
+    return error.message;
+  }
+}
+
 export const syncIntegrationsOnRemote = async (
   esClient: ElasticsearchClient,
   soClient: SavedObjectsClient,
@@ -162,11 +203,26 @@ export const syncIntegrationsOnRemote = async (
     return;
   }
 
-  for (const pkg of syncIntegrationsDoc?.integrations ?? []) {
+  const installedIntegrations =
+    syncIntegrationsDoc?.integrations.filter(
+      (integration) => integration.install_status !== 'not_installed'
+    ) ?? [];
+  for (const pkg of installedIntegrations) {
     if (abortController.signal.aborted) {
       throw new Error('Task was aborted');
     }
     await installPackageIfNotInstalled(pkg, packageClient, logger, abortController);
+  }
+
+  const uninstalledIntegrations =
+    syncIntegrationsDoc?.integrations.filter(
+      (integration) => integration.install_status === 'not_installed'
+    ) ?? [];
+  for (const pkg of uninstalledIntegrations) {
+    if (abortController.signal.aborted) {
+      throw new Error('Task was aborted');
+    }
+    await uninstallPackageIfInstalled(esClient, soClient, pkg, logger);
   }
 
   for (const customAsset of Object.values(syncIntegrationsDoc?.custom_assets ?? {})) {
