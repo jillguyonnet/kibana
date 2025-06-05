@@ -1246,7 +1246,6 @@ class PackagePolicyClientImpl implements PackagePolicyClient {
         },
       };
       try {
-        await soClient.get<PackagePolicySOAttributes>(savedObjectType, `${id}:prev`);
         await soClient.update<PackagePolicySOAttributes>(
           savedObjectType,
           `${id}:prev`,
@@ -1259,7 +1258,6 @@ class PackagePolicyClientImpl implements PackagePolicyClient {
             previousRevisionSO.attributes,
             {
               id: `${id}:prev`,
-              references: currentPackagePolicySO.references,
             }
           );
         } else {
