@@ -844,13 +844,12 @@ class PackagePolicyClientImpl implements PackagePolicyClient {
     );
 
     const savedObjectType = await getPackagePolicySavedObjectType();
-    const packagePolicyLatestRevisionKuery = `(${savedObjectType}.attributes.latest_revision:true OR NOT ${savedObjectType}.attributes.latest_revision:*)`;
     const packagePolicySO = await soClient
       .find<PackagePolicySOAttributes>({
         type: savedObjectType,
         filter: `${savedObjectType}.attributes.policy_ids:${escapeSearchQueryPhrase(
           agentPolicyId
-        )} AND ${packagePolicyLatestRevisionKuery}`,
+        )} AND ${savedObjectType}.attributes.latest_revision:true`,
         perPage: SO_SEARCH_LIMIT,
         namespaces: isSpacesEnabled ? options.spaceIds : undefined,
       })
@@ -970,12 +969,11 @@ class PackagePolicyClientImpl implements PackagePolicyClient {
         )}`
     );
 
-    const packagePolicyLatestRevisionKuery = `${savedObjectType}.attributes.latest_revision:true OR NOT ${savedObjectType}.attributes.latest_revision:*`;
     const filter = _normalizePackagePolicyKuery(
       savedObjectType,
       kuery
-        ? `(${packagePolicyLatestRevisionKuery}) AND ${kuery}`
-        : packagePolicyLatestRevisionKuery
+        ? `${savedObjectType}.attributes.latest_revision:true AND ${kuery}`
+        : `${savedObjectType}.attributes.latest_revision:true`
     );
 
     const packagePolicies = await soClient
@@ -1032,12 +1030,11 @@ class PackagePolicyClientImpl implements PackagePolicyClient {
         )}]`
     );
 
-    const packagePolicyLatestRevisionKuery = `${savedObjectType}.attributes.latest_revision:true OR NOT ${savedObjectType}.attributes.latest_revision:*`;
     const filter = _normalizePackagePolicyKuery(
       savedObjectType,
       kuery
-        ? `(${packagePolicyLatestRevisionKuery}) AND ${kuery}`
-        : packagePolicyLatestRevisionKuery
+        ? `${savedObjectType}.attributes.latest_revision:true AND ${kuery}`
+        : `${savedObjectType}.attributes.latest_revision:true`
     );
 
     const packagePolicies = await soClient
