@@ -33,6 +33,7 @@ import type {
   GetBulkAssetsResponse,
   GetInstalledPackagesResponse,
   GetEpmDataStreamsResponse,
+  RollbackPackageResponse,
   AssetSOObject,
   PackageSpecCategory,
 } from '../../../common/types';
@@ -54,6 +55,7 @@ import type {
   CreateCustomIntegrationRequestSchema,
   GetInputsRequestSchema,
   CustomIntegrationRequestSchema,
+  RollbackPackageRequestSchema,
 } from '../../types';
 import {
   bulkInstallPackages,
@@ -73,6 +75,7 @@ import type { BulkInstallResponse } from '../../services/epm/packages';
 import { fleetErrorToResponseOptions, FleetError, FleetTooManyRequestsError } from '../../errors';
 import { appContextService, checkAllowedPackages, packagePolicyService } from '../../services';
 import { getPackageUsageStats } from '../../services/epm/packages/get';
+import { rollbackInstallation } from '../../services/epm/packages/rollback';
 import { updatePackage } from '../../services/epm/packages/update';
 import { getGpgKeyIdOrUndefined } from '../../services/epm/packages/package_verification';
 import type {
@@ -663,4 +666,13 @@ const soToInstallationInfo = (pkg: PackageListItem | PackageInfo) => {
     };
   }
   return pkg;
+};
+
+export const rollbackPackageHandler: FleetRequestHandler<
+  TypeOf<typeof RollbackPackageRequestSchema.params>
+> = async (context, request, response) => {
+  const { pkgName } = request.params;
+  const savedObjectsClient = (await context.fleet).internalSoClient;
+  const body: RollbackPackageResponse = await rollbackInstallation({ savedObjectsClient, pkgName });
+  return response.ok({ body });
 };
